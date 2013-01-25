@@ -10,13 +10,15 @@ body {
 header {
 	position: absolute;
 	bottom: 82.5%;
-	width: 100%;
+	left: 10%;
+	width: 80%;
 	font-family: Georgia;
 	font-size: 2.5em;
 	font-weight: bold;
 	text-align: center;
 	color: #BD9547;
 	text-shadow: #A26F0C -2px 2px;
+	min-width: 600px;
 }
 #game {
 	position: absolute;
@@ -24,6 +26,8 @@ header {
 	left: 10%;
 	height: 65%;
 	width: 80%;
+	min-width: 600px;
+	min-height: 250px;
 }
 .circle {
 	position: absolute;
@@ -32,36 +36,38 @@ header {
 	width: 100px;
 	height: 100px;
 }
-.circle#happy {
+.circle#grumpy {
 	left: 0;
 	border: 20px solid #FFA077;
 	box-shadow: -2px 2px 2px 0px #BD6A47;
 }
-.circle.inner#happy {
+.circle.inner#grumpy {
 	box-shadow: inset -2px 2px 2px 0px #BD6A47;
+	background: url('grumpy.jpg') no-repeat;
 }
-.circle#grumpy {
+.circle#happy {
 	right: 0;
 	border: 20px solid #7FA4F2;
 	box-shadow: -2px 2px 2px 0px #435F99;
 }
-.circle.inner#grumpy {
+.circle.inner#happy {
 	box-shadow: inset -2px 2px 2px 0px #435F99;
+	background: url('happy.jpg') no-repeat;
 }
 .bar {
 	position: absolute;
 	bottom: 138px;
-	height: 180px;
+	height: 60%;
 	width: 20px;
 	border-top-left-radius: 5px;
 	border-top-right-radius: 5px;
 }
-.bar#happy {
+.bar#grumpy {
 	left: 60px;
 	background: #FFCCB7;
 	box-shadow: inset -3px 3px 2px 0 #BD6A47;
 }
-.bar#grumpy {
+.bar#happy {
 	right: 60px;
 	background: #B4C8F2;
 	box-shadow: inset -3px 3px 2px 0 #435F99;
@@ -69,13 +75,13 @@ header {
 .bar.full {
 	height: 1px;
 }
-.bar.full#happy {
+.bar.full#grumpy {
 	background: #FFA077;
-	height: 150px;
+	height: 100px;
 	box-shadow: -2px 2px 2px 0px #BD6A47;
 }
-.bar.full#grumpy {
+.bar.full#happy {
 	background: #7FA4F2;
-	height: 50px;
+	height: 40px;
 	box-shadow: -2px 2px 2px 0px #435F99;
 }
