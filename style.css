@@ -1,0 +1,81 @@
+html {
+	height: 100%;
+}
+body {
+	background: linear-gradient(to bottom, #A26F0C, #BD9547 25%, #A26F0C) no-repeat fixed;
+	margin: 0;
+	padding: 0;
+	height: 100%;
+}
+header {
+	position: absolute;
+	bottom: 82.5%;
+	width: 100%;
+	font-family: Georgia;
+	font-size: 2.5em;
+	font-weight: bold;
+	text-align: center;
+	color: #BD9547;
+	text-shadow: #A26F0C -2px 2px;
+}
+#game {
+	position: absolute;
+	top: 20%;
+	left: 10%;
+	height: 65%;
+	width: 80%;
+}
+.circle {
+	position: absolute;
+	bottom: 0;
+	border-radius: 50%;
+	width: 100px;
+	height: 100px;
+}
+.circle#happy {
+	left: 0;
+	border: 20px solid #FFA077;
+	box-shadow: -2px 2px 2px 0px #BD6A47;
+}
+.circle.inner#happy {
+	box-shadow: inset -2px 2px 2px 0px #BD6A47;
+}
+.circle#grumpy {
+	right: 0;
+	border: 20px solid #7FA4F2;
+	box-shadow: -2px 2px 2px 0px #435F99;
+}
+.circle.inner#grumpy {
+	box-shadow: inset -2px 2px 2px 0px #435F99;
+}
+.bar {
+	position: absolute;
+	bottom: 138px;
+	height: 180px;
+	width: 20px;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+}
+.bar#happy {
+	left: 60px;
+	background: #FFCCB7;
+	box-shadow: inset -3px 3px 2px 0 #BD6A47;
+}
+.bar#grumpy {
+	right: 60px;
+	background: #B4C8F2;
+	box-shadow: inset -3px 3px 2px 0 #435F99;
+}
+.bar.full {
+	height: 1px;
+}
+.bar.full#happy {
+	background: #FFA077;
+	height: 150px;
+	box-shadow: -2px 2px 2px 0px #BD6A47;
+}
+.bar.full#grumpy {
+	background: #7FA4F2;
+	height: 50px;
+	box-shadow: -2px 2px 2px 0px #435F99;
+}
