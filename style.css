@@ -8,6 +8,7 @@ body {
 	margin: 0;
 	padding: 0;
 	height: 100%;
+	overflow: hidden;
 }
 header {
 	position: absolute;
@@ -30,6 +31,38 @@ header {
 	width: 80%;
 	min-width: 600px;
 	min-height: 250px;
+}
+#regions {
+	position: relative;
+	height: 100%;
+	margin: 0 80px 20%;
+}
+#regions .inner {
+	position: absolute;
+	bottom: 75px;
+	height: 100%;
+	width: 100%;
+}
+#floor {
+	position: absolute;
+	width: 170%;
+	height: 50%;
+	bottom: 0;
+	left: -35%;
+	/*
+	background: white;
+	opacity: 0.5;
+	*/
+}
+#cattery {
+	position: absolute;
+	width: 100%;
+	height: 40%;
+	bottom: 50%;
+	/*
+	background: black;
+	opacity: 0.5;
+	*/
 }
 .ring {
 	position: absolute;
