@@ -2,6 +2,8 @@ html {
 	height: 100%;
 }
 body {
+	background-color: #A26F0C;
+	background: -webkit-linear-gradient(top, #A26F0C, #BD9547 25%, #A26F0C) no-repeat fixed;
 	background: linear-gradient(to bottom, #A26F0C, #BD9547 25%, #A26F0C) no-repeat fixed;
 	margin: 0;
 	padding: 0;
