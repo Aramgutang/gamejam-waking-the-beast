@@ -50,10 +50,12 @@ function make_new_box() {
 	box_div.style.zIndex = 3 - y_offset;
 	box_div.style.left = x_offset + '%';
 	box_div.style.bottom = y_offset * 33.33 + '%';
-	var heartbeat_div = document.createElement('div');
-	heartbeat_div.className = 'heartbeat';
+	var heartbeat_canvas = document.createElement('canvas');
+	heartbeat_canvas.className = 'heartbeat';
+	heartbeat_canvas.width = 80;
+	heartbeat_canvas.height = 50;
 	cattery.appendChild(box_div);
-	box_div.appendChild(heartbeat_div);
+	box_div.appendChild(heartbeat_canvas);
 	// Create the box meta object for future reference
 	var box = {
 		'element': box_div,
@@ -61,7 +63,10 @@ function make_new_box() {
 		'y': y_offset,
 		'heartbeat': 0.0,
 		'heartbeat_increment': 0.07 * random(1, 10) * level,
-		'heartbeat_div': heartbeat_div,
+		'heartbeat_canvas': heartbeat_canvas,
+		'pulse_position': -1,
+		'last_beat_end': -10,
+		'last_flat_length': 20,
 		'opacity': 4.0,
 		'fading': false
 	};
@@ -86,18 +91,79 @@ function update_box(box, index, array) {
 			box.element.style.opacity = Math.min(box.opacity, 1.0);
 	} else {
 		box.heartbeat += 0.17;
-		box.heartbeat_div.textContent = box.heartbeat.toFixed(2);
-		if(box.heartbeat > 100)
+		if(box.heartbeat > 100) {
 			launch_cat(box);
+			box.heartbeat = 0;
+		}
 	}
+	if(box)
+		update_heartbeat(box);
 }
 
 /*** HEARTBEATS ***/
 
+function draw_beat(context, position) {
+	// Draws a heartbeat pulse line
+	context.moveTo(position, 30);
+	context.lineTo(position + 2, 34);
+	context.lineTo(position + 4, 2);
+	context.lineTo(position + 5, 44);
+	context.lineTo(position + 8, 28);
+	context.lineTo(position + 10, 30);
+}
+
+function update_heartbeat(box) {
+	var position = box.pulse_position + 1;
+	var context = box.heartbeat_canvas.getContext('2d');
+	var flat_length = Math.floor(60.0 * ((100 - box.heartbeat) / 100.0));
+	// Check if we're in the middle of a flat and the current heartrate allows
+	// us to continue drawing it, or if the cat is out of the box, in which
+	// case we continue drawing a flatline
+	if (box.fading || position - box.last_beat_end < flat_length) {
+		box.last_flat_length = flat_length;
+		context.beginPath();
+		context.moveTo(box.pulse_position, 30);
+		context.lineTo(position, 30);
+		context.stroke();
+	// Check if we are in the middle of drawing a pulse
+	} else if(!box.last_flat_length < (position - box.last_beat_end)) {
+		var last_beat_start = box.last_beat_end + box.last_flat_length;
+		// Clear what's drawn of the pulse
+		context.clearRect(last_beat_start, 0, position - last_beat_start, 50);
+		context.beginPath();
+		context.moveTo(box.last_beat_start, 30);
+		draw_beat(context, last_beat_start);
+		// Check if the pulse ends at the current position
+		if(last_beat_start + 10 <= position) {
+			box.last_beat_end = last_beat_start + 10;
+			box.last_flat_length = flat_length;
+			context.lineTo(position, 30); // Just in case
+		}
+		context.stroke();
+	// We're in the middle of a flat, and the current heartrate dictates that
+	// we should start a new pulse
+	} else {
+		box.last_flat_length = position - box.last_beat_end;
+		context.beginPath();
+		draw_beat(context, position);
+		context.stroke();
+	}
+	// Clear the next few columns of pixels to get that "rolling" effect
+	context.clearRect(position + 1, 0, 10, 50);
+	// If we're near the edge, warp the clearing around
+	if(position + 10 >= 79)
+		context.clearRect(0, 0, position - 79 + 10, 50);
+	// Check if we've reached the edge
+	if(position >= 79) {
+		box.last_beat_end -= position + 1;
+		position = -1;
+	}
+	box.pulse_position = position;
+}
+
 function reduce_heartbeat(event) {
-	console.log(event.target);
 	boxes.forEach(function(box, index, array){
-		if(box.heartbeat_div == event.target)
+		if(box.heartbeat_canvas == event.target)
 			box.heartbeat = Math.max(box.heartbeat - 1, 0);
 	});
 }
