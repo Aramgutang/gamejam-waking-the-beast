@@ -146,3 +146,16 @@ header {
 	color: #FFCCB7;
 	text-shadow: #BD6A47 -1px 1px;
 }
+.box {
+	position: absolute;
+	background: grey;
+	height: 75px;
+	width: 150px;
+	opacity: 1.0;
+}
+.cat {
+	position: absolute;
+	background: lightgrey;
+	height: 50px;
+	width: 75px;
+}
