@@ -13,7 +13,8 @@ attributes = re.compile(r'(class|id)\s*=\s*[\'"](.*?)[\'"]')
 link_tag = re.compile(r'<link[^>]+href\s*=\s*[\'"](.*?)[\'"][^>]*>', re.M)
 
 def strip_whitespace(match):
-    return match.group(0).replace(' ', '').replace('\t', '').replace('\n', '')
+    stripped = match.group(0).replace('\t', '').replace('\n', '')
+    return re.sub(r'\s+<', '<', re.sub(r'>\s+', '>', stripped))
 
 def trim_css_names(match):
     return match.group(1)[:2]
