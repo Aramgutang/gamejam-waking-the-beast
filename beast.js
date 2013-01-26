@@ -5,6 +5,14 @@ var cats = [];
 var boxes = [];
 var cattery, looper, playarea, bars;
 
+/*
+A ferocious beast rests inside this box, growing increasingly restless. Soon
+he will get agitated enough to leap out with his fangs drawn. Soothe the beast
+by hovering your mouse over its box, and stroke it by rolling your scroll
+wheel. When you are ready to unleash his fury on the vermin scuttering below,
+click on the box to awake him from his slumber.
+*/
+
 function random(min, max) {
 	// Returns random number (not necessarily integer) between the limits
 	return Math.random() * (max - min) + min;
@@ -67,13 +75,19 @@ function game_over() {
 }
 
 function update_scores(type) {
+	// Unpause the progress bar growth animation for the duration dictated by
+	// the queued stores. I know it's a strange way to approach the task, but
+	// bear with me.
 	var increment = progress_queue[type].pop();
 	if(increment) {
 		bars[type].style.animationPlayState = 'running';
 		bars[type].style.webkitAnimationPlayState = 'running';
 		window.setTimeout(
 			function(){ update_scores(type); },
-			increment * (4900 /( level * 10)) // epsilon of 100ms
+			// It takes level*10 points to fill up the bar. When moving, the
+			// bar will always move at a speed where it would take 5 seconds
+			// to fill up the whole bar.
+			increment * (5100 /( level * 10)) // epsilon of 100ms
 		);
 	} else {
 		bars[type].style.animationPlayState = 'paused';
@@ -82,6 +96,9 @@ function update_scores(type) {
 }
 
 function queue_end(score_element) {
+	// Queue the score that has just arrived to one of the cats, so that
+	// update_scores can increment the progress bar as it pops off the scores.
+	// Using a queue to avoid race conditions.
 	score = Number(score_element.textContent);
 	if(score < 0) {
 		progress_queue['grumpy'].push(-score);
@@ -93,27 +110,35 @@ function queue_end(score_element) {
 }
 
 function queue_catch(cat) {
+	// Start creating a div to hold the score that will be delivered to one
+	// of the overseer cats
 	var score_div = document.createElement('div');
 	score_div.className = 'score';
+	// Some variables to help with position calculations
 	var play_width = get_px(playarea, 'width');
 	var score_left = get_px(cat.element, 'left') + 25;
 	var score_right = play_width - score_left - 15;
 	var score_side, score_text;
 	if(cat.score < 0) {
+		// One for grumpycat, use the "left" property to move it left
 		score_div.className += ' grumpy';
 		score_text = cat.score;
 		score_div.style.left = score_left + 'px';
 		score_side = score_left / play_width * 3.0 + 's';
 	} else {
+		// One for happycat, use the "right" property
 		score_div.className += ' happy';
 		score_text = '+' + cat.score;
 		score_div.style.right = score_right + 'px';
 		score_side = score_right / play_width * 3.0 + 's';
 	}
+	// Set up score sliding animation and add it to the DOM
 	score_div.style.animationDuration = score_side;
 	score_div.style.webkitAnimationDuration = score_side;
+	// The score will be added to the progress bar when the animation ends
 	score_div.addEventListener('animationend', function(){ queue_end(score_div); });
 	score_div.addEventListener('webkitAnimationEnd', function(){ queue_end(score_div); });
+	// Put the score number as text inside the div
 	score_div.appendChild(document.createTextNode(score_text));
 	playarea.appendChild(score_div);
 }
@@ -152,6 +177,8 @@ function fly_cat(cat, index, array) {
 	// on top of its box as it comes down
 	if(old_velocity >= 0.0 && cat.velocity < 0)
 		cat.element.style.zIndex = cat.z_index + 1;
+	// When the cat passes the score queue, add its score to the queue and
+	// start fading it out
 	if(position < queue_bottom) {
 		if(old_bottom >= queue_bottom)
 			queue_catch(cat);
