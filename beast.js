@@ -104,12 +104,12 @@ function update_box(box, index, array) {
 
 function draw_beat(context, position) {
 	// Draws a heartbeat pulse line
-	context.moveTo(position, 30);
-	context.lineTo(position + 2, 34);
-	context.lineTo(position + 4, 2);
-	context.lineTo(position + 5, 44);
-	context.lineTo(position + 8, 28);
-	context.lineTo(position + 10, 30);
+	context.moveTo(position, 32);
+	context.lineTo(position + 2, 36);
+	context.lineTo(position + 4, 9);
+	context.lineTo(position + 5, 46);
+	context.lineTo(position + 8, 30);
+	context.lineTo(position + 10, 32);
 }
 
 function update_heartbeat(box) {
@@ -122,8 +122,8 @@ function update_heartbeat(box) {
 	if (box.fading || position - box.last_beat_end < flat_length) {
 		box.last_flat_length = flat_length;
 		context.beginPath();
-		context.moveTo(box.pulse_position, 30);
-		context.lineTo(position, 30);
+		context.moveTo(box.pulse_position, 32);
+		context.lineTo(position, 32);
 		context.stroke();
 	// Check if we are in the middle of drawing a pulse
 	} else if(!box.last_flat_length < (position - box.last_beat_end)) {
@@ -131,13 +131,13 @@ function update_heartbeat(box) {
 		// Clear what's drawn of the pulse
 		context.clearRect(last_beat_start, 0, position - last_beat_start, 50);
 		context.beginPath();
-		context.moveTo(box.last_beat_start, 30);
+		context.moveTo(box.last_beat_start, 32);
 		draw_beat(context, last_beat_start);
 		// Check if the pulse ends at the current position
 		if(last_beat_start + 10 <= position) {
 			box.last_beat_end = last_beat_start + 10;
 			box.last_flat_length = flat_length;
-			context.lineTo(position, 30); // Just in case
+			context.lineTo(position, 32); // Just in case
 		}
 		context.stroke();
 	// We're in the middle of a flat, and the current heartrate dictates that
