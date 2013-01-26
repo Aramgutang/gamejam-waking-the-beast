@@ -14,6 +14,8 @@ wheel. When you are ready to unleash his fury on the vermin scuttering below,
 click on the box to awake him from his slumber.
 */
 
+/*** UTILITIES ***/
+
 function random(min, max) {
 	// Returns random number (not necessarily integer) between the limits
 	return Math.random() * (max - min) + min;
@@ -35,6 +37,8 @@ function get_px(element, attribute) {
 	}
 	return Number(value.substring(0, value.length - 2));
 }
+
+/*** BOXES ***/
 
 function make_new_box() {
 	// Randomise initial box position
@@ -66,15 +70,95 @@ function make_new_box() {
 	box_div.onclick = function(){ launch_cat(box); };
 }
 
-function victory() {
-	console.log('Victory!');
-	playing = False;
+function update_box(box, index, array) {
+	// Fade out fading boxes
+	if(box.fading) {		
+		// We can't operate directly on element opacity because Chrome doesn't
+		// like values outside the 0.0-1.0 range
+		box.opacity -= 0.1;
+		// Remove boxes that have faded away from the DOM and memory
+		if(box.opacity <= 0.0) {
+			boxes.splice(boxes.indexOf(box), 1);
+			box.element.parentNode.removeChild(box.element);
+			box = null;
+		}
+		else
+			box.element.style.opacity = Math.min(box.opacity, 1.0);
+	} else {
+		box.heartbeat += 0.17;
+		box.heartbeat_div.textContent = box.heartbeat.toFixed(2);
+		if(box.heartbeat > 100)
+			launch_cat(box);
+	}
 }
 
-function game_over() {
-	console.log('Game Over!');
-	playing = False;
+/*** HEARTBEATS ***/
+
+function reduce_heartbeat(event) {
+	console.log(event.target);
+	boxes.forEach(function(box, index, array){
+		if(box.heartbeat_div == event.target)
+			box.heartbeat = Math.max(box.heartbeat - 1, 0);
+	});
 }
+
+/*** CATS ***/
+
+function launch_cat(box) {
+	// Start the box removal process
+	box.fading = true;
+	box.element.onclick = null;
+	// Create the cat in the DOM
+	var cat_div = document.createElement('div');
+	cat_div.className = 'cat';
+	cat_div.style.left = get_px(box.element, 'left') + 37.5 + 80 + 'px';
+	cat_div.style.bottom = get_px(box.element, 'bottom') 
+		+ get_px(cattery, 'bottom') + 75 + 'px';
+	playarea.appendChild(cat_div);
+	// Create the cat meta object for future reference
+	var cat = {
+		'element': cat_div,
+		'velocity': 40.0,
+		'z_index': box.element.style.zIndex,
+		'score': -1,
+	};
+	cats.push(cat);
+}
+
+function fly_cat(cat, index, array) {
+	var old_bottom = get_px(cat.element, 'bottom');
+	var old_velocity = cat.velocity;
+	var position = get_px(cat.element, 'bottom');
+	var floor_top = get_px(floor, 'bottom') + get_px(floor, 'height');
+	var queue_bottom = get_px(document.getElementById('queue'), 'bottom');
+	// Move the cat based on its current velocity and gravity
+	position += cat.velocity / 3.0;
+	cat.velocity -= 9.83 / 3.0;
+	cat.element.style.bottom = position + 'px';
+	// When the cat passes the peak of its trajectory, make sure it appears
+	// on top of its box as it comes down
+	if(old_velocity >= 0.0 && cat.velocity < 0)
+		cat.element.style.zIndex = cat.z_index + 1;
+	// When the cat has reached the floor, splay him out
+	if(old_bottom > floor_top && position <= floor_top) {
+		cat.element.className += " lying";
+	}
+	// When the cat passes the score queue, add its score to the queue and
+	// start fading it out
+	if(position < queue_bottom) {
+		if(old_bottom >= queue_bottom)
+			queue_catch(cat);
+		cat.element.style.opacity = Math.max(Math.min(
+				(position + 100) / (queue_bottom + 200), 1.0), 0,0);
+		if(position <= -100) {
+			cats.splice(cats.indexOf(cat), 1);
+			cat.element.parentNode.removeChild(cat.element);
+			cat = null;
+		}
+	}
+}
+
+/*** SCORES ***/
 
 function update_scores(type) {
 	// Unpause the progress bar growth animation for the duration dictated by
@@ -145,89 +229,19 @@ function queue_catch(cat) {
 	playarea.appendChild(score_div);
 }
 
-function launch_cat(box) {
-	// Start the box removal process
-	box.fading = true;
-	box.element.onclick = null;
-	// Create the cat in the DOM
-	var cat_div = document.createElement('div');
-	cat_div.className = 'cat';
-	cat_div.style.left = get_px(box.element, 'left') + 37.5 + 80 + 'px';
-	cat_div.style.bottom = get_px(box.element, 'bottom') 
-		+ get_px(cattery, 'bottom') + 75 + 'px';
-	playarea.appendChild(cat_div);
-	// Create the cat meta object for future reference
-	var cat = {
-		'element': cat_div,
-		'velocity': 40.0,
-		'z_index': box.element.style.zIndex,
-		'score': -1,
-	};
-	cats.push(cat);
+/*** LEVELS ***/
+
+function victory() {
+	console.log('Victory!');
+	playing = false;
 }
 
-function fly_cat(cat, index, array) {
-	var old_bottom = get_px(cat.element, 'bottom');
-	var old_velocity = cat.velocity;
-	var position = get_px(cat.element, 'bottom');
-	var floor_top = get_px(floor, 'bottom') + get_px(floor, 'height');
-	var queue_bottom = get_px(document.getElementById('queue'), 'bottom');
-	// Move the cat based on its current velocity and gravity
-	position += cat.velocity / 3.0;
-	cat.velocity -= 9.83 / 3.0;
-	cat.element.style.bottom = position + 'px';
-	// When the cat passes the peak of its trajectory, make sure it appears
-	// on top of its box as it comes down
-	if(old_velocity >= 0.0 && cat.velocity < 0)
-		cat.element.style.zIndex = cat.z_index + 1;
-	// When the cat has reached the floor, splay him out
-	if(old_bottom > floor_top && position <= floor_top) {
-		cat.element.className += " lying";
-	}
-	// When the cat passes the score queue, add its score to the queue and
-	// start fading it out
-	if(position < queue_bottom) {
-		if(old_bottom >= queue_bottom)
-			queue_catch(cat);
-		cat.element.style.opacity = Math.max(Math.min(
-				(position + 100) / (queue_bottom + 200), 1.0), 0,0);
-		if(position <= -100) {
-			cats.splice(cats.indexOf(cat), 1);
-			cat.element.parentNode.removeChild(cat.element);
-			cat = null;
-		}
-	}
+function game_over() {
+	console.log('Game Over!');
+	playing = false;
 }
 
-function reduce_heartbeat(event) {
-	console.log(event.target);
-	boxes.forEach(function(box, index, array){
-		if(box.heartbeat_div == event.target)
-			box.heartbeat = Math.max(box.heartbeat - 1, 0);
-	});
-}
-
-function update_box(box, index, array) {
-	// Fade out fading boxes
-	if(box.fading) {		
-		// We can't operate directly on element opacity because Chrome doesn't
-		// like values outside the 0.0-1.0 range
-		box.opacity -= 0.1;
-		// Remove boxes that have faded away from the DOM and memory
-		if(box.opacity <= 0.0) {
-			boxes.splice(boxes.indexOf(box), 1);
-			box.element.parentNode.removeChild(box.element);
-			box = null;
-		}
-		else
-			box.element.style.opacity = Math.min(box.opacity, 1.0);
-	} else {
-		box.heartbeat += 0.17;
-		box.heartbeat_div.textContent = box.heartbeat.toFixed(2);
-		if(box.heartbeat > 100)
-			launch_cat(box);
-	}
-}
+/*** CONTROLLERS ***/
 
 function event_loop() {
 	if(playing) {
