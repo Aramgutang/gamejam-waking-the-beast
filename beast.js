@@ -3,7 +3,7 @@ var playing = true;
 var progress_queue = {'happy': [], 'grumpy': []};
 var cats = [];
 var boxes = [];
-var cattery, looper, playarea, bars;
+var cattery, floor, looper, playarea, bars;
 
 /*
 A ferocious beast rests inside this box, growing increasingly restless. Soon
@@ -168,6 +168,7 @@ function fly_cat(cat, index, array) {
 	var old_bottom = get_px(cat.element, 'bottom');
 	var old_velocity = cat.velocity;
 	var position = get_px(cat.element, 'bottom');
+	var floor_top = get_px(floor, 'bottom') + get_px(floor, 'height');
 	var queue_bottom = get_px(document.getElementById('queue'), 'bottom');
 	// Move the cat based on its current velocity and gravity
 	position += cat.velocity / 3.0;
@@ -177,6 +178,10 @@ function fly_cat(cat, index, array) {
 	// on top of its box as it comes down
 	if(old_velocity >= 0.0 && cat.velocity < 0)
 		cat.element.style.zIndex = cat.z_index + 1;
+	// When the cat has reached the floor, splay him out
+	if(old_bottom > floor_top && position <= floor_top) {
+		cat.element.className += " lying";
+	}
 	// When the cat passes the score queue, add its score to the queue and
 	// start fading it out
 	if(position < queue_bottom) {
@@ -222,6 +227,7 @@ function event_loop() {
 window.onload = function() {
 	// Load elements against which things will be positioned into globals
 	cattery = document.getElementById('cattery');
+	floor = document.getElementById('floor');
 	playarea = document.getElementById('playarea');
 	bars = {
 		'grumpy': document.getElementsByClassName('progress level grumpy')[0],
