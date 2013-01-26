@@ -3,6 +3,7 @@ var playing = true;
 var progress_queue = {'happy': [], 'grumpy': []};
 var cats = [];
 var boxes = [];
+var wheel_event = '';
 var cattery, floor, looper, playarea, bars;
 
 /*
@@ -55,6 +56,7 @@ function make_new_box() {
 		'x': x_offset,
 		'y': y_offset,
 		'heartbeat': 0.0,
+		'heartbeat_increment': 0.07 * random(1, 10) * level,
 		'heartbeat_div': heartbeat_div,
 		'opacity': 4.0,
 		'fading': false
@@ -197,6 +199,14 @@ function fly_cat(cat, index, array) {
 	}
 }
 
+function reduce_heartbeat(event) {
+	console.log(event.target);
+	boxes.forEach(function(box, index, array){
+		if(box.heartbeat_div == event.target)
+			box.heartbeat = Math.max(box.heartbeat - 1, 0);
+	});
+}
+
 function update_box(box, index, array) {
 	// Fade out fading boxes
 	if(box.fading) {		
@@ -211,20 +221,34 @@ function update_box(box, index, array) {
 		}
 		else
 			box.element.style.opacity = Math.min(box.opacity, 1.0);
+	} else {
+		box.heartbeat += 0.17;
+		box.heartbeat_div.textContent = box.heartbeat.toFixed(2);
+		if(box.heartbeat > 100)
+			launch_cat(box);
 	}
 }
 
 function event_loop() {
-	// The current level determines how many boxes appear at one time
-	if(boxes.length < level)
-		make_new_box();
+	if(playing) {
+		// The current level determines how many boxes appear at one time
+		if(boxes.length < level)
+			make_new_box();
+		// Update heartbeats and fade out fading boxes
+		boxes.forEach(update_box);
+	}
 	// Move any airborne cats through the air
 	cats.forEach(fly_cat);
-	// Update heartbeats and fade out fading boxes
-	boxes.forEach(update_box);
 }
 
 window.onload = function() {
+	// Detect what kind of mouse wheel events the browser supports
+    if (document.onmousewheel !== undefined)
+        wheel_event = "mousewheel"; // Webkit + IE
+    try {
+        WheelEvent("wheel");
+        wheel_event = "wheel"; // Firefox
+    } catch (e) {}
 	// Load elements against which things will be positioned into globals
 	cattery = document.getElementById('cattery');
 	floor = document.getElementById('floor');
@@ -238,6 +262,7 @@ window.onload = function() {
 	bars.grumpy.addEventListener('webkitAnimationEnd', game_over);
 	bars.happy.addEventListener('animationend', victory);
 	bars.happy.addEventListener('webkitAnimationEnd', victory);
+	document.addEventListener(wheel_event, reduce_heartbeat);
 	// Enter event loop
 	looper = window.setInterval(event_loop, 33);
 };

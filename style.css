@@ -221,3 +221,13 @@ header {
 .cat.lying {
 	height: 100px;
 }
+.heartbeat {
+	position: absolute;
+	left: 35px;
+	bottom: 0;
+	width: 80px;
+	height: 50px;
+	
+	color: white;
+	font-size: 14px;
+}
