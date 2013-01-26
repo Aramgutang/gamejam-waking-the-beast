@@ -43,11 +43,15 @@ def compress_and_inline_css(match):
 def compress_and_inline_js(match):
     script_path = os.path.join(os.path.dirname(sys.argv[1]), match.group(1))
     with open(script_path) as script_file:
-        compress_command = subprocess.Popen(
-            ['java', '-jar', 'yuicompressor-2.4.8pre.jar', '--type', 'js'],
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-        )
-        compressed,_ = compress_command.communicate(script_file.read())
+        script = script_file.read()
+        script = script.replace("'box'", "'b'").replace("'heartbeat'", "'h'")\
+            .replace("'cattery'", "'c'").replace("'playarea'", "'p'")\
+            .replace("'cat'", "'c'")
+    compress_command = subprocess.Popen(
+        ['java', '-jar', 'yuicompressor-2.4.8pre.jar', '--type', 'js'],
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+    )
+    compressed,_ = compress_command.communicate(script)
     return '<script>%s' % compressed
 
 with open(sys.argv[1]) as html_file:
