@@ -71,25 +71,25 @@ header {
 	width: 100px;
 	height: 100px;
 }
-.ring#grumpy {
+.ring.grumpy {
 	left: 0;
 	border: 20px solid #FFA077;
 	box-shadow: -2px 2px 2px 0 #BD6A47;
 }
-.ring.inner#grumpy {
+.ring.inner.grumpy {
 	box-shadow: inset -2px 2px 2px 0 #BD6A47;
 	background: url('grumpy.jpg') no-repeat;
 }
-.ring#happy {
+.ring.happy {
 	right: 0;
 	border: 20px solid #7FA4F2;
 	box-shadow: -2px 2px 2px 0 #435F99;
 }
-.ring.inner#happy {
+.ring.inner.happy {
 	box-shadow: inset -2px 2px 2px 0 #435F99;
 	background: url('happy.jpg') no-repeat;
 }
-.gauge {
+.progress {
 	position: absolute;
 	bottom: 138px;
 	height: 60%;
@@ -97,25 +97,25 @@ header {
 	border-top-left-radius: 5px;
 	border-top-right-radius: 5px;
 }
-.gauge#grumpy {
+.progress.grumpy {
 	left: 60px;
 	background: #FFCCB7;
 	box-shadow: inset -3px 3px 2px 0 #BD6A47;
 }
-.gauge#happy {
+.progress.happy {
 	right: 60px;
 	background: #B4C8F2;
 	box-shadow: inset -3px 3px 2px 0 #435F99;
 }
-.gauge.level {
+.progress.level {
 	height: 1px;
 }
-.gauge.level#grumpy {
+.progress.level.grumpy {
 	background: #FFA077;
 	height: 100px;
 	box-shadow: -2px 2px 2px 0 #BD6A47;
 }
-.gauge.level#happy {
+.progress.level.happy {
 	background: #7FA4F2;
 	height: 40px;
 	box-shadow: -2px 2px 2px 0 #435F99;
