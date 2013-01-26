@@ -70,6 +70,7 @@ header {
 	border-radius: 50%;
 	width: 100px;
 	height: 100px;
+	z-index: 2000;
 }
 .ring.grumpy {
 	left: 0;
@@ -108,17 +109,48 @@ header {
 	box-shadow: inset -3px 3px 2px 0 #435F99;
 }
 .progress.level {
-	height: 1px;
+	height: 0%;
+	-webkit-animation-timing-function: linear;
+	-webkit-animation-play-state: paused;
+	-webkit-animation-duration: 5s;
+	-webkit-animation-fill-mode: forwards;
+	animation-timing-function: linear;
+	animation-play-state: paused;
+	animation-duration: 5s;
+	animation-fill-mode: forwards;
 }
 .progress.level.grumpy {
 	background: #FFA077;
-	height: 100px;
 	box-shadow: -2px 2px 2px 0 #BD6A47;
+	-webkit-animation-name: grumpyprogress;
+	animation-name: grumpyprogress;
+	
 }
 .progress.level.happy {
 	background: #7FA4F2;
-	height: 40px;
 	box-shadow: -2px 2px 2px 0 #435F99;
+	-webkit-animation-name: happyprogress;
+	animation-name: happyprogress;
+}
+@-webkit-keyframes grumpyprogress {
+	to {
+		height: 60%;
+	}
+}
+@-webkit-keyframes happyprogress {
+	to {
+		height: 60%;
+	}
+}
+@keyframes grumpyprogress {
+	to {
+		height: 60%;
+	}
+}
+@keyframes happyprogress {
+	to {
+		height: 60%;
+	}
 }
 #queue {
 	position: absolute;
@@ -128,6 +160,7 @@ header {
 	width: 98%;
 	background: #BD9547;
 	box-shadow: inset -3px 3px 2px 0 #A26F0C;
+	z-index: 1000;
 }
 .score {
 	position: absolute;
@@ -135,16 +168,43 @@ header {
 	font-family: sans-serif;
 	font-size: 14px;
 	line-height: 18px;
+	z-index: 1500;
+	-webkit-animation-fill-mode: forwards;
+	-webkit-animation-timing-function: ease-in;
+	animation-fill-mode: forwards;
+	animation-timing-function: ease-in;
 }
 .score.happy {
-	left: 30%;
 	color: #B4C8F2;
 	text-shadow: #435F99 -1px 1px;
+	-webkit-animation-name: happyslide;
+	animation-name: happyslide;
 }
 .score.grumpy {
-	left: 55%;
 	color: #FFCCB7;
 	text-shadow: #BD6A47 -1px 1px;
+	-webkit-animation-name: grumpyslide;
+	animation-name: grumpyslide;
+}
+@-webkit-keyframes grumpyslide {
+	to {
+		left: 50px;
+	}
+}
+@-webkit-keyframes happyslide {
+	to {
+		right: 50px;
+	}
+}
+@keyframes grumpyslide {
+	to {
+		left: 50px;
+	}
+}
+@keyframes happyslide {
+	to {
+		right: 50px;
+	}
 }
 .box {
 	position: absolute;

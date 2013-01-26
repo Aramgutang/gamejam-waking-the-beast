@@ -1,7 +1,9 @@
 var level = 1;
+var playing = true;
+var progress_queue = {'happy': [], 'grumpy': []};
 var cats = [];
 var boxes = [];
-var cattery, looper, playarea;
+var cattery, looper, playarea, bars;
 
 function random(min, max) {
 	// Returns random number (not necessarily integer) between the limits
@@ -54,7 +56,72 @@ function make_new_box() {
 	box_div.onclick = function(){ launch_cat(box); };
 }
 
+function victory() {
+	console.log('Victory!');
+	playing = False;
+}
+
+function game_over() {
+	console.log('Game Over!');
+	playing = False;
+}
+
+function update_scores(type) {
+	var increment = progress_queue[type].pop();
+	if(increment) {
+		bars[type].style.animationPlayState = 'running';
+		bars[type].style.webkitAnimationPlayState = 'running';
+		window.setTimeout(
+			function(){ update_scores(type); },
+			increment * (4900 /( level * 10)) // epsilon of 100ms
+		);
+	} else {
+		bars[type].style.animationPlayState = 'paused';
+		bars[type].style.webkitAnimationPlayState = 'paused';
+	}
+}
+
+function queue_end(score_element) {
+	score = Number(score_element.textContent);
+	if(score < 0) {
+		progress_queue['grumpy'].push(-score);
+		update_scores('grumpy');
+	} else {
+		progress_queue['happy'].push(score);
+		update_scores('happy');
+	}
+}
+
+function queue_catch(cat) {
+	var score_div = document.createElement('div');
+	score_div.className = 'score';
+	var play_width = get_px(playarea, 'width');
+	var score_left = get_px(cat.element, 'left') + 25;
+	var score_right = play_width - score_left - 15;
+	var score_side, score_text;
+	if(cat.score < 0) {
+		score_div.className += ' grumpy';
+		score_text = cat.score;
+		score_div.style.left = score_left + 'px';
+		score_side = score_left / play_width * 3.0 + 's';
+	} else {
+		score_div.className += ' happy';
+		score_text = '+' + cat.score;
+		score_div.style.right = score_right + 'px';
+		score_side = score_right / play_width * 3.0 + 's';
+	}
+	score_div.style.animationDuration = score_side;
+	score_div.style.webkitAnimationDuration = score_side;
+	score_div.addEventListener('animationend', function(){ queue_end(score_div); });
+	score_div.addEventListener('webkitAnimationEnd', function(){ queue_end(score_div); });
+	score_div.appendChild(document.createTextNode(score_text));
+	playarea.appendChild(score_div);
+}
+
 function launch_cat(box) {
+	// Start the box removal process
+	box.fading = true;
+	box.element.onclick = null;
 	// Create the cat in the DOM
 	var cat_div = document.createElement('div');
 	cat_div.className = 'cat';
@@ -67,16 +134,16 @@ function launch_cat(box) {
 		'element': cat_div,
 		'velocity': 40.0,
 		'z_index': box.element.style.zIndex,
+		'score': -1,
 	};
 	cats.push(cat);
-	// Start the box removal process
-	box.fading = true;
-	box.element.onclick = null;
 }
 
 function fly_cat(cat, index, array) {
+	var old_bottom = get_px(cat.element, 'bottom');
 	var old_velocity = cat.velocity;
 	var position = get_px(cat.element, 'bottom');
+	var queue_bottom = get_px(document.getElementById('queue'), 'bottom');
 	// Move the cat based on its current velocity and gravity
 	position += cat.velocity / 3.0;
 	cat.velocity -= 9.83 / 3.0;
@@ -85,6 +152,17 @@ function fly_cat(cat, index, array) {
 	// on top of its box as it comes down
 	if(old_velocity >= 0.0 && cat.velocity < 0)
 		cat.element.style.zIndex = cat.z_index + 1;
+	if(position < queue_bottom) {
+		if(old_bottom >= queue_bottom)
+			queue_catch(cat);
+		cat.element.style.opacity = Math.max(Math.min(
+				(position + 100) / (queue_bottom + 200), 1.0), 0,0);
+		if(position <= -100) {
+			cats.splice(cats.indexOf(cat), 1);
+			cat.element.parentNode.removeChild(cat.element);
+			cat = null;
+		}
+	}
 }
 
 function update_box(box, index, array) {
@@ -118,6 +196,15 @@ window.onload = function() {
 	// Load elements against which things will be positioned into globals
 	cattery = document.getElementById('cattery');
 	playarea = document.getElementById('playarea');
+	bars = {
+		'grumpy': document.getElementsByClassName('progress level grumpy')[0],
+		'happy': document.getElementsByClassName('progress level happy')[0]
+	};
+	// Add event listeners
+	bars.grumpy.addEventListener('animationend', game_over);
+	bars.grumpy.addEventListener('webkitAnimationEnd', game_over);
+	bars.happy.addEventListener('animationend', victory);
+	bars.happy.addEventListener('webkitAnimationEnd', victory);
 	// Enter event loop
 	looper = window.setInterval(event_loop, 33);
 };
