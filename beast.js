@@ -14,7 +14,15 @@ function get_px(element, attribute) {
 	// computed style, which is always in pixels.
 	style = window.getComputedStyle(element);
 	// Strip the "px" suffix and convert into a number
-	return Number(style[attribute].substring(0, style[attribute].length - 2));
+	value = style[attribute];
+	// Since Chrome doesn't necessarily return pixels, deal with percentages
+	// by looking at the parent's dimensions
+	if(value[value.length-1] == '%') {
+		position_map = {'left': 'width', 'bottom': 'height'};
+		return Number(value.substring(0, value.length -1)) / 100
+			* get_px(element.parentElement, position_map[attribute]);
+	}
+	return Number(value.substring(0, value.length - 2));
 }
 
 function make_new_box() {
@@ -38,7 +46,8 @@ function make_new_box() {
 		'y': y_offset,
 		'heartbeat': 0.0,
 		'heartbeat_div': heartbeat_div,
-		'fading': false,
+		'opacity': 4.0,
+		'fading': false
 	};
 	boxes.push(box);
 	// Assign event listeners
@@ -50,7 +59,8 @@ function launch_cat(box) {
 	var cat_div = document.createElement('div');
 	cat_div.className = 'cat';
 	cat_div.style.left = get_px(box.element, 'left') + 37.5 + 80 + 'px';
-	cat_div.style.bottom = get_px(box.element, 'bottom') + get_px(cattery, 'bottom') + 75 + 'px';
+	cat_div.style.bottom = get_px(box.element, 'bottom') 
+		+ get_px(cattery, 'bottom') + 75 + 'px';
 	playarea.appendChild(cat_div);
 	// Create the cat meta object for future reference
 	var cat = {
@@ -80,17 +90,17 @@ function fly_cat(cat, index, array) {
 function update_box(box, index, array) {
 	// Fade out fading boxes
 	if(box.fading) {		
-		if(!box.element.style.opacity)
-			// Don't start fading until the cat has cleared it
-			box.element.style.opacity = 4.0;
+		// We can't operate directly on element opacity because Chrome doesn't
+		// like values outside the 0.0-1.0 range
+		box.opacity -= 0.1;
+		// Remove boxes that have faded away from the DOM and memory
+		if(box.opacity <= 0.0) {
+			boxes.splice(boxes.indexOf(box), 1);
+			box.element.parentNode.removeChild(box.element);
+			box = null;
+		}
 		else
-			box.element.style.opacity -= 0.1;
-	}
-	// Remove boxes that have faded away from the DOM and memory
-	if(box.element.style.opacity < 0) {
-		boxes.splice(boxes.indexOf(box), 1);
-		box.element.parentNode.removeChild(box.element);
-		box = null;
+			box.element.style.opacity = Math.min(box.opacity, 1.0);
 	}
 }
 
