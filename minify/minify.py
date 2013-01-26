@@ -13,6 +13,18 @@ attributes = re.compile(r'(class|id)\s*=\s*[\'"](.*?)[\'"]')
 link_tag = re.compile(r'<link[^>]+href\s*=\s*[\'"](.*?)[\'"][^>]*>', re.M)
 script_tag = re.compile(r'<script[^>]+src\s*=\s*[\'"](.*?)[\'"][^>]*>', re.M)
 
+script_replace = (
+    ('boxes', 'x'),
+    ("'box'", "'b'"),
+    ("'heartbeat'", "'h'"),
+    ('cattery', 'c'),
+    ('playarea', 'p'),
+    ('cats', 's'),
+    ("'cat'", "'c'"),
+    ('looper', 'l'),
+    ('level', 'v'),
+)
+
 def strip_whitespace(match):
     stripped = match.group(0).replace('\t', '').replace('\n', '')
     return re.sub(r'\s+<', '<', re.sub(r'>\s+', '>', stripped))
@@ -44,9 +56,8 @@ def compress_and_inline_js(match):
     script_path = os.path.join(os.path.dirname(sys.argv[1]), match.group(1))
     with open(script_path) as script_file:
         script = script_file.read()
-        script = script.replace("'box'", "'b'").replace("'heartbeat'", "'h'")\
-            .replace("'cattery'", "'c'").replace("'playarea'", "'p'")\
-            .replace("'cat'", "'c'")
+        for key, value in script_replace:
+            script = script.replace(key, value)
     compress_command = subprocess.Popen(
         ['java', '-jar', 'yuicompressor-2.4.8pre.jar', '--type', 'js'],
         stdin=subprocess.PIPE, stdout=subprocess.PIPE,
