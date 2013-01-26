@@ -11,6 +11,7 @@ outside_tags = re.compile(r'\s*>[^<]+<\s*', re.M)
 inside_tags = re.compile(r'<[^>]+>', re.M)
 attributes = re.compile(r'(class|id)\s*=\s*[\'"](.*?)[\'"]')
 link_tag = re.compile(r'<link[^>]+href\s*=\s*[\'"](.*?)[\'"][^>]*>', re.M)
+script_tag = re.compile(r'<script[^>]+src\s*=\s*[\'"](.*?)[\'"][^>]*>', re.M)
 
 def strip_whitespace(match):
     stripped = match.group(0).replace('\t', '').replace('\n', '')
@@ -38,11 +39,21 @@ def compress_and_inline_css(match):
     )
     compressed,_ = compress_command.communicate(trimmed_style)
     return '<style>%s</style>' % compressed
-    
+
+def compress_and_inline_js(match):
+    script_path = os.path.join(os.path.dirname(sys.argv[1]), match.group(1))
+    with open(script_path) as script_file:
+        compress_command = subprocess.Popen(
+            ['java', '-jar', 'yuicompressor-2.4.8pre.jar', '--type', 'js'],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+        )
+        compressed,_ = compress_command.communicate(script_file.read())
+    return '<script>%s' % compressed
 
 with open(sys.argv[1]) as html_file:
     html = html_file.read()
     html = outside_tags.sub(strip_whitespace, html)
     html = inside_tags.sub(trim_html_names, html)
     html = link_tag.sub(compress_and_inline_css, html)
+    html = script_tag.sub(compress_and_inline_js, html)
     print html
