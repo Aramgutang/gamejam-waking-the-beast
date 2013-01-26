@@ -59,10 +59,19 @@ script_replace = (
     ("'heartbeat'", "'h'"),
     ('cattery', 'c'),
     ('playarea', 'p'),
-    ('cats', 's'),
+    ('cats', 't'),
     ("'cat'", "'c'"),
-    ('looper', 'l'),
-    ('level', 'v'),
+    ('looper', 'o'),
+    ('level', 'l'),
+    ('progress', 'p'),
+    ('grumpy', 'g'),
+    ('happy', 'h'),
+    ('Math.floor', 'm.f'),
+    ('floor', 'f'),
+    ('m.f', 'Math.floor'),
+    ('queue', 'q'),
+    ('lying', 'l'),
+    ('score', 's'),
 )
 script_tag = re.compile(r'<script[^>]+src\s*=\s*[\'"](.*?)[\'"][^>]*>', re.M)
 def compress_and_inline_js(match):
