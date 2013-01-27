@@ -3,6 +3,7 @@ var playing = true;
 var progress_queue = {'happy': [], 'grumpy': []};
 var cats = [];
 var boxes = [];
+var mice = [];
 var wheel_event = '';
 var cattery, floor, looper, playarea, bars;
 
@@ -187,6 +188,7 @@ function launch_cat(box) {
 		'velocity': 40.0,
 		'z_index': box.element.style.zIndex,
 		'score': -1,
+		'mice': [],
 	};
 	cats.push(cat);
 }
@@ -198,7 +200,11 @@ function fly_cat(cat, index, array) {
 	var floor_top = get_px(floor, 'bottom') + get_px(floor, 'height');
 	var queue_bottom = get_px(document.getElementById('queue'), 'bottom');
 	// Move the cat based on its current velocity and gravity
-	position += cat.velocity / 3.0;
+	var increment = cat.velocity / 3.0;
+	position += increment;
+	cat.mice.forEach(function(mouse){
+		mouse.element.style.bottom = get_px(mouse.element, 'bottom') + increment + 'px';
+	});
 	cat.velocity -= 9.83 / 3.0;
 	cat.element.style.bottom = position + 'px';
 	// When the cat passes the peak of its trajectory, make sure it appears
@@ -209,11 +215,15 @@ function fly_cat(cat, index, array) {
 	if(old_bottom > floor_top && position <= floor_top) {
 		cat.element.className += " lying";
 	}
+	mice.forEach(function(mouse){ if(!mouse.caught) catch_mouse(cat, mouse); });
 	// When the cat passes the score queue, add its score to the queue and
 	// start fading it out
 	if(position < queue_bottom) {
-		if(old_bottom >= queue_bottom)
+		if(old_bottom >= queue_bottom) {
+			while(cat.mice.length)
+				mouse_escape(cat.mice.pop());
 			queue_catch(cat);
+		}
 		cat.element.style.opacity = Math.max(Math.min(
 				(position + 100) / (queue_bottom + 200), 1.0), 0,0);
 		if(position <= -100) {
@@ -221,6 +231,97 @@ function fly_cat(cat, index, array) {
 			cat.element.parentNode.removeChild(cat.element);
 			cat = null;
 		}
+	}
+}
+
+function catch_mouse(cat, mouse) {
+	// Determine whether the cat has interacted with the given mouse
+	var mouse_width = get_px(mouse.element, 'width');
+	var mouse_height = get_px(mouse.element, 'height');
+	var mouse_corner_x = get_px(mouse.element, 'left') + get_px(floor, 'left')
+		+ mouse_width + 80;
+	var mouse_corner_y = get_px(mouse.element, 'bottom') + mouse_height + 75;
+	
+	var cat_width = get_px(cat.element, 'width');
+	var cat_height = get_px(cat.element, 'height');
+	var cat_corner_x = get_px(cat.element, 'left');
+	var cat_corner_y = get_px(cat.element, 'bottom') - 10;
+	
+	if(cat_corner_x < mouse_corner_x 
+			&& cat_corner_x + cat_width > mouse_corner_x - mouse_width
+			&& cat_corner_y < mouse_corner_y
+			&& cat_corner_y + cat_height * 0.75 > mouse_corner_y - mouse_height){
+			// These mice are really lucky
+//			&& !(
+//				cat_corner_y < mouse_corner_y
+//				&& cat_corner_x < mouse_corner_x - mouse_width
+//			)) {
+		// The mouse has been caught!
+		if(mouse.waiter)
+			window.clearInterval(mouse.waiter);
+		mouse.element.style.animationPlayState = 'paused';
+		mouse.element.style.webkitAnimationPlayState = 'paused';
+		mouse.caught = true;
+		cat.mice.push(mouse);
+		if(cat.score == -1)
+			cat.score = 1;
+		else
+			cat.score *= 2;
+		
+	} else if(cat_corner_x < mouse_corner_x
+			&& cat_corner_x > mouse_corner_x - mouse_width
+			&& cat_corner_y < mouse_corner_y
+			&& cat_corner_y + cat_height > mouse_corner_y) {
+		// The mouse had to stop to avoid the cat
+		mouse.element.className = 'mouse upright';
+		if(mouse.waiter)
+			window.clearInterval(mouse.waiter);
+		mouse.waiter = window.setInterval(function() {
+			mouse.element.className = 'mouse';
+			mouse.element.style.animationPlayState = 'running';
+			mouse.element.style.webkitAnimationPlayState = 'running';
+			mouse.waiter = null;
+		}, 1000);
+		mouse.element.style.animationPlayState = 'paused';
+		mouse.element.style.webkitAnimationPlayState = 'paused';
+	}
+}
+
+/*** MICE ***/
+
+function mouse_continue(mouse) {
+	// The mouse has finished waiting for the cat to fly by and may carry on
+	// on its way
+	mouse.element.className = 'mouse';
+	mouse.element.style.animationPlayState = 'running';
+	mouse.element.style.webkitAnimationPlayState = 'running';
+}
+
+function mouse_escape(mouse) {
+	// The mouse reached the end of the floor; remove it from DOM and memory
+	mice.splice(mice.indexOf(mouse), 1);
+	mouse.element.parentNode.removeChild(mouse.element);
+	mouse = null;
+}
+
+function spawn_mice() {
+	if(mice.length < level * 3 && Math.floor(random(1,30)) == 2) {
+		// Create the mouse DOM element
+		var mouse_div = document.createElement('div');
+		mouse_div.className = 'mouse';
+		mouse_div.style.bottom = random(0.0, 75.0) + '%';
+		var scurry_time = random(5.0, 10.0) + 's';
+		mouse_div.style.animationDuration = scurry_time;
+		mouse_div.style.webkitAnimationDuration = scurry_time;
+		var mouse = {
+			'element': mouse_div,
+			'caught': false,
+			'waiter': null
+		};
+		mice.push(mouse);
+		mouse_div.addEventListener('animationend', function(){ mouse_escape(mouse); });
+		mouse_div.addEventListener('webkitAnimationEnd', function(){ mouse_escape(mouse); });
+		floor.appendChild(mouse_div);
 	}
 }
 
@@ -316,6 +417,8 @@ function event_loop() {
 			make_new_box();
 		// Update heartbeats and fade out fading boxes
 		boxes.forEach(update_box);
+		// Spawn some vermin
+		spawn_mice();
 	}
 	// Move any airborne cats through the air
 	cats.forEach(fly_cat);
