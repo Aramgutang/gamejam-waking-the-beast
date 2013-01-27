@@ -134,6 +134,16 @@ header {
 		height: 60%;
 	}
 }
+@-webkit-keyframes grumpyreset {
+	to {
+		height: 0%;
+	}
+}
+@-webkit-keyframes happyreset {
+	to {
+		height: 0%;
+	}
+}
 @keyframes grumpyprogress {
 	to {
 		height: 60%;
@@ -142,6 +152,16 @@ header {
 @keyframes happyprogress {
 	to {
 		height: 60%;
+	}
+}
+@keyframes grumpyreset {
+	to {
+		height: 0%;
+	}
+}
+@keyframes happyreset {
+	to {
+		height: 0%;
 	}
 }
 #queue {

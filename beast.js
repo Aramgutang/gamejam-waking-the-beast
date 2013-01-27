@@ -391,12 +391,58 @@ function queue_catch(cat) {
 
 /*** LEVELS ***/
 
+function new_level() {
+	bars['grumpy'].style.animationPlayState = 'paused';
+	bars['grumpy'].style.animationName = 'happyprogress';
+	bars['grumpy'].style.animationDuration = '5s';
+	bars.grumpy.addEventListener('animationend', game_over);
+	
+	bars['happy'].style.animationPlayState = 'paused';
+	bars['happy'].style.animationName = 'happyprogress';
+	bars['happy'].style.animationDuration = '5s';
+	bars.happy.addEventListener('animationend', victory);
+	
+	bars['grumpy'].style.webkitAanimationPlayState = 'paused';
+	bars['grumpy'].style.webkitAnimationName = 'happyprogress';
+	bars['grumpy'].style.webkitAnimationDuration = '5s';
+	bars.grumpy.addEventListener('webkitAnimationEnd', game_over);
+	
+	bars['happy'].style.webkitAnimationPlayState = 'paused';
+	bars['happy'].style.webkitAnimationName = 'happyprogress';
+	bars['happy'].style.webkitAnimationDuration = '5s';
+	bars.happy.addEventListener('webkitAnimationEnd', victory);
+	
+	narrative.style.display = 'none';
+	playing = true;
+}
+
 function victory() {
 	level += 1;
 	playing = false;
 	boxes.forEach(function(box){ box.fading = true; box.element.onclick = null; });
 	narrative.textContent = 'Level ' + level;
 	narrative.style.display = 'block';
+	bars['happy'].style.animationPlayState = 'running';
+	bars['happy'].style.animationName = 'happyreset';
+	bars['happy'].style.animationDuration = '2s';
+	bars['happy'].removeEventListener('animationend', victory);
+	
+	bars['grumpy'].style.animationPlayState = 'running';
+	bars['grumpy'].style.animationName = 'grumpyreset';
+	bars['grumpy'].style.animationDuration = '2s';
+	bars['grumpy'].removeEventListener('animationend', game_over);
+	bars['grumpy'].addEventListener('animationend', new_level);
+	
+	bars['happy'].style.webkitAnimationPlayState = 'running';
+	bars['happy'].style.webkitAnimationName = 'happyreset';
+	bars['happy'].style.webkitAnimationDuration = '2s';
+	bars['happy'].removeEventListener('webkitAnimationend', victory);
+	
+	bars['grumpy'].style.webkitAnimationPlayState = 'running';
+	bars['grumpy'].style.webkitAnimationName = 'grumpyreset';
+	bars['grumpy'].style.webkitAnimationDuration = '2s';
+	bars['grumpy'].removeEventListener('webkitAnimationend', game_over);
+	bars['grumpy'].addEventListener('webkitAnimationend', new_level);
 }
 
 function game_over() {
@@ -446,7 +492,7 @@ window.onload = function() {
 	bars.happy.addEventListener('animationend', victory);
 	bars.happy.addEventListener('webkitAnimationEnd', victory);
 	document.addEventListener(wheel_event, reduce_heartbeat);
-	narrative.onclick = function(){ playing = true; narrative.style.display = 'none' };
+	narrative.onclick = function(){ playing = true; narrative.style.display = 'none'; };
 	// Enter event loop
 	looper = window.setInterval(event_loop, 33);
 };
