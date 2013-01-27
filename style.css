@@ -247,3 +247,15 @@ header {
 		left: 100%;
 	}
 }
+#narrative {
+	position: absolute;
+	top: 0;
+	left: 0;
+	padding: 0 15%;
+	z-index: 3000;
+	font-family: Georgia;
+	font-size: 1.5em;
+	text-align: center;
+	color: #0F3483;
+	text-shadow: #435F99 -1px 1px;
+}

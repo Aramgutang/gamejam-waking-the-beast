@@ -1,19 +1,11 @@
 var level = 1;
-var playing = true;
+var playing = false;
 var progress_queue = {'happy': [], 'grumpy': []};
 var cats = [];
 var boxes = [];
 var mice = [];
 var wheel_event = '';
-var cattery, floor, looper, playarea, bars;
-
-/*
-A ferocious beast rests inside this box, growing increasingly restless. Soon
-he will get agitated enough to leap out with his fangs drawn. Soothe the beast
-by hovering your mouse over its box, and stroke it by rolling your scroll
-wheel. When you are ready to unleash his fury on the vermin scuttering below,
-click on the box to awake him from his slumber.
-*/
+var cattery, floor, looper, narrative, playarea, bars;
 
 /*** UTILITIES ***/
 
@@ -97,7 +89,7 @@ function update_box(box, index, array) {
 			box.heartbeat = 0;
 		}
 	}
-	if(box)
+	if(box && playing)
 		update_heartbeat(box);
 }
 
@@ -172,6 +164,7 @@ function reduce_heartbeat(event) {
 /*** CATS ***/
 
 function launch_cat(box) {
+	narrative.style.display = 'none';
 	// Start the box removal process
 	box.fading = true;
 	box.element.onclick = null;
@@ -399,13 +392,19 @@ function queue_catch(cat) {
 /*** LEVELS ***/
 
 function victory() {
-	console.log('Victory!');
+	level += 1;
 	playing = false;
+	boxes.forEach(function(box){ box.fading = true; box.element.onclick = null; });
+	narrative.textContent = 'Level ' + level;
+	narrative.style.display = 'block';
 }
 
 function game_over() {
-	console.log('Game Over!');
+	level = 1;
 	playing = false;
+	boxes.forEach(function(box){ box.fading = true; box.element.onclick = null; });
+	narrative.textContent = 'Game Over';
+	narrative.style.display = 'block';
 }
 
 /*** CONTROLLERS ***/
@@ -415,11 +414,11 @@ function event_loop() {
 		// The current level determines how many boxes appear at one time
 		if(boxes.length < level)
 			make_new_box();
-		// Update heartbeats and fade out fading boxes
-		boxes.forEach(update_box);
-		// Spawn some vermin
-		spawn_mice();
 	}
+	// Update heartbeats and fade out fading boxes
+	boxes.forEach(update_box);
+	// Spawn some vermin
+	spawn_mice();
 	// Move any airborne cats through the air
 	cats.forEach(fly_cat);
 }
@@ -435,6 +434,7 @@ window.onload = function() {
 	// Load elements against which things will be positioned into globals
 	cattery = document.getElementById('cattery');
 	floor = document.getElementById('floor');
+	narrative = document.getElementById('narrative');
 	playarea = document.getElementById('playarea');
 	bars = {
 		'grumpy': document.getElementsByClassName('progress level grumpy')[0],
@@ -446,6 +446,7 @@ window.onload = function() {
 	bars.happy.addEventListener('animationend', victory);
 	bars.happy.addEventListener('webkitAnimationEnd', victory);
 	document.addEventListener(wheel_event, reduce_heartbeat);
+	narrative.onclick = function(){ playing = true; narrative.style.display = 'none' };
 	// Enter event loop
 	looper = window.setInterval(event_loop, 33);
 };
