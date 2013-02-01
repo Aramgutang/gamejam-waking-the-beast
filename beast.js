@@ -396,23 +396,23 @@ function queue_catch(cat) {
 
 function new_level() {
 	bars.happy.removeEventListener('animationend', new_level);
-	bars.happy.removeEventListener('webkitAnimationend', new_level);
+	bars.happy.removeEventListener('webkitAnimationEnd', new_level);
 	
 	bars.grumpy.removeEventListener('animationend', new_level);
-	bars.grumpy.removeEventListener('webkitAnimationend', new_level);
+	bars.grumpy.removeEventListener('webkitAnimationEnd', new_level);
 	
 	bars.happy.style.animationPlayState = 'paused';
 	bars.happy.style.webkitAnimationPlayState = 'paused';
 	bars.happy.style.height = null;
 	bars.happy.className = 'progress level happy';
 	bars.happy.addEventListener('animationend', victory);
-	bars.happy.addEventListener('webkitAnimationend', victory);
+	bars.happy.addEventListener('webkitAnimationEnd', victory);
 	
 	bars.grumpy.style.animationPlayState = 'paused';
 	bars.grumpy.style.webkitAnimationPlayState = 'paused';
 	bars.grumpy.className = 'progress level grumpy';
 	bars.grumpy.addEventListener('animationend', game_over);
-	bars.grumpy.addEventListener('webkitAnimationend', game_over);
+	bars.grumpy.addEventListener('webkitAnimationEnd', game_over);
 	
 	narrative.style.display = 'none';
 	playing = true;
@@ -436,12 +436,12 @@ function victory() {
 	transition_levels();
 	
 	bars.happy.removeEventListener('animationend', victory);
-	bars.happy.removeEventListener('webkitAnimationend', victory);
+	bars.happy.removeEventListener('webkitAnimationEnd', victory);
 	
 	bars.happy.className = 'progress level happy reset';
 	
 	bars.happy.addEventListener('animationend', new_level);
-	bars.happy.addEventListener('webkitAnimationend', new_level);
+	bars.happy.addEventListener('webkitAnimationEnd', new_level);
 }
 
 function game_over() {
@@ -450,9 +450,9 @@ function game_over() {
 	transition_levels();
 	
 	bars.grumpy.removeEventListener('animationend', game_over);
-	bars.grumpy.removeEventListener('webkitAnimationend', game_over);
+	bars.grumpy.removeEventListener('webkitAnimationEnd', game_over);
 	bars.happy.removeEventListener('animationend', victory);
-	bars.happy.removeEventListener('webkitAnimationend', victory);
+	bars.happy.removeEventListener('webkitAnimationEnd', victory);
 	
 	bars.grumpy.className = 'progress level grumpy reset';
 	
@@ -463,7 +463,7 @@ function game_over() {
 	bars.happy.style.height = old_height + 'px';
 	
 	bars.grumpy.addEventListener('animationend', new_level);
-	bars.grumpy.addEventListener('webkitAnimationend', new_level);
+	bars.grumpy.addEventListener('webkitAnimationEnd', new_level);
 }
 
 /*** CONTROLLERS ***/
