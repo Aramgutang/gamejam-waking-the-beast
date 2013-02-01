@@ -256,8 +256,8 @@ function catch_mouse(cat, mouse) {
 		mouse.element.style.webkitAnimationPlayState = 'paused';
 		mouse.caught = true;
 		cat.mice.push(mouse);
-		if(cat.score == -1)
-			cat.score = 1;
+		if(cat.score < 0)
+			cat.score = 2;
 		else
 			cat.score *= 2;
 		
@@ -298,7 +298,7 @@ function mouse_escape(mouse) {
 }
 
 function spawn_mice() {
-	if(mice.length < level * 3 && Math.floor(random(1,30)) == 2) {
+	if(mice.length < 6 && Math.floor(random(1,30)) == 2) {
 		// Create the mouse DOM element
 		var mouse_div = document.createElement('div');
 		mouse_div.className = 'mouse';
@@ -325,19 +325,22 @@ function update_scores(type) {
 	// the queued stores. I know it's a strange way to approach the task, but
 	// bear with me.
 	var increment = progress_queue[type].pop();
-	if(increment) {
-		bars[type].style.animationPlayState = 'running';
-		bars[type].style.webkitAnimationPlayState = 'running';
-		window.setTimeout(
-			function(){ update_scores(type); },
-			// It takes level*10 points to fill up the bar. When moving, the
-			// bar will always move at a speed where it would take 5 seconds
-			// to fill up the whole bar.
-			increment * (5100 /( level * 10)) // epsilon of 100ms
-		);
-	} else {
-		bars[type].style.animationPlayState = 'paused';
-		bars[type].style.webkitAnimationPlayState = 'paused';
+	if(playing) {
+		if(increment) {
+			bars[type].style.animationPlayState = 'running';
+			bars[type].style.webkitAnimationPlayState = 'running';
+			var multiplier = type == 'grumpy' ? 1 : level;
+			window.setTimeout(
+				function(){ update_scores(type); },
+				// It takes level*10 points to fill up the bar. When moving,
+				// the bar will always move at a speed where it would take 5
+				// seconds to fill up the whole bar.
+				increment * (5100 /( multiplier * 10)) // epsilon of 100ms
+			);
+		} else {
+			bars[type].style.animationPlayState = 'paused';
+			bars[type].style.webkitAnimationPlayState = 'paused';
+		}
 	}
 }
 
