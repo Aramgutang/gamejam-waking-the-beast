@@ -134,6 +134,24 @@ header {
 		height: 60%;
 	}
 }
+.progress.level.grumpy.reset {
+	height: 60%;
+	-webkit-animation-name: grumpyreset;
+	-webkit-animation-play-state: running;
+	-webkit-animation-duration: 2s;
+	animation-name: grumpyreset;
+	animation-play-state: running;
+	animation-duration: 2s;
+}
+.progress.level.happy.reset {
+	height: 60%;
+	-webkit-animation-name: happyreset;
+	-webkit-animation-play-state: running;
+	-webkit-animation-duration: 2s;
+	animation-name: happyreset;
+	animation-play-state: running;
+	animation-duration: 2s;
+}
 @-webkit-keyframes grumpyreset {
 	to {
 		height: 0%;
