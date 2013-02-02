@@ -238,18 +238,19 @@ header {
 }
 .box {
 	position: absolute;
-	background: grey;
+	background: url('box.png');
 	height: 75px;
 	width: 150px;
 }
 .cat {
 	position: absolute;
-	background: lightgrey;
+	background: url('cat.png');
 	height: 50px;
 	width: 75px;
 }
 .cat.lying {
-	height: 100px;
+	background: url('splayed.png');
+	height: 118px;
 }
 .heartbeat {
 	position: absolute;
@@ -263,7 +264,7 @@ header {
 	left: 0%;
 	width: 50px;
 	height: 25px;
-	background: black;
+	background: url('mouse.png');
 	-webkit-animation-timing-function: linear;
 	-webkit-animation-fill-mode: forwards;
 	-webkit-animation-name: mousescurry;
